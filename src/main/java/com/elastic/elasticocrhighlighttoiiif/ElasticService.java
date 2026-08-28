@@ -56,7 +56,7 @@ public class ElasticService {
             
     Authenticate authenticate = new Authenticate();  
     String auth = Base64.getEncoder().encodeToString((authenticate.getUsername() + ":" + authenticate.getPassword()).getBytes());
-      
+ try {     
     String response = restClient.post()
             .uri("/annotations/_search") // prod
             .header("Authorization", "Basic " + auth)
@@ -64,8 +64,7 @@ public class ElasticService {
             .body(requestBody)
             .retrieve()
             .body(String.class);
-
-
+    
     JsonNode root = objectMapper.readTree(response);
 
     List<Book> result = new ArrayList<>();
@@ -80,6 +79,40 @@ public class ElasticService {
     }
 
     return result;
+    
+} catch (Exception e) {
+    e.printStackTrace();
+    Thread.sleep(1000);
+        try {     
+           String response = restClient.post()
+                   .uri("/annotations/_search") // prod
+                   .header("Authorization", "Basic " + auth)
+                   .contentType(MediaType.APPLICATION_JSON)
+                   .body(requestBody)
+                   .retrieve()
+                   .body(String.class);
+
+           JsonNode root = objectMapper.readTree(response);
+
+           List<Book> result = new ArrayList<>();
+
+           for (JsonNode hit : root.path("hits").path("hits")) {
+               result.add(
+                   objectMapper.treeToValue(
+                       hit.path("_source"),
+                       Book.class
+                   )
+               );
+           }
+
+           return result;
+
+       } catch (Exception ee) {
+            ee.printStackTrace();
+            throw e;
+        }    
+    }
+
 }
     
     

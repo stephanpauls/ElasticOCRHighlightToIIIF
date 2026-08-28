@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.*;
 
 @RestController
-@RequestMapping("/iiif")
+@RequestMapping("/iiif_elastic_search")
 public class IIIFSearchController {
 
     @Autowired
